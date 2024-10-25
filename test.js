@@ -98,10 +98,14 @@ app.put("/loyalty/points", validateApiKey, async (req, res) => {
     }
 
     // Calculate the current total points
-    const currentPoints = customer.points.reduce(
-      (total, entry) => total + entry.points,
-      0
-    );
+    const currentPoints = customer.points.reduce((total, entry) => {
+      const expiryDate = new Date(entry.expiry);
+      const currentDate = new Date();
+      if (expiryDate > currentDate) {
+        return total + entry.points;
+      }
+      return total;
+    }, 0);
 
     // Check if the new total would be negative
     if (currentPoints + points < 0) {
